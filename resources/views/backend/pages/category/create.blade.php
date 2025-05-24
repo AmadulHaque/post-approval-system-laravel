@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('backend.layouts.app',['table' => 'Categories create'])
+@section('content')
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Create') }} Category
@@ -25,7 +27,7 @@
                                 <form method="POST" action="{{ route('categories.store') }}"  role="form" enctype="multipart/form-data">
                                     @csrf
 
-                                    @include('category.form')
+                                    @include('backend.pages.category.form')
                                 </form>
                             </div>
                         </div>
@@ -34,4 +36,5 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+
+@endsection
