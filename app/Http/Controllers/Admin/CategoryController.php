@@ -4,74 +4,82 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
-use App\Models\Category;
+use App\Services\CategoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): View
-    {
-        $categories = Category::paginate();
+    protected $routeRouteName = 'categories.index';
+    public function __construct(private CategoryService $categoryService)
+    {}
 
-        return view('backend.pages.category.index', compact('categories'))
-            ->with('i', ($request->input('page', 1) - 1) * $categories->perPage());
+
+    public function index(): View
+    {
+        $categories = $this->categoryService->getCategories();
+        return view('backend.pages.category.index', compact('categories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
-        $category = new Category();
-
-        return view('backend.pages.category.create', compact('category'));
+        return view('backend.pages.category.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(CategoryRequest $request): RedirectResponse
     {
-        Category::create($request->validated());
-
-        return Redirect::route('categories.index')
-            ->with('success', 'Category created successfully.');
+        try {
+            $this->categoryService->createCategory($request->validated());
+            return redirect()->route($this->routeRouteName)
+                ->with('success', 'Category created successfully.');
+        } catch (\Throwable $th) {
+            return redirect()->route('categories.create')
+                ->with('error', 'Failed to create category: ' . $th->getMessage());
+        }
     }
 
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id): View
+    public function edit(string $id): RedirectResponse|View
     {
-        $category = Category::find($id);
-
-        return view('backend.pages.category.edit', compact('category'));
+        try {
+            $category  = $this->categoryService->findCategoryById($id);
+            return view('backend.pages.category.edit', compact('category'));
+        } catch (ModelNotFoundException $e) {
+            abort(404, 'Category not found');
+        }catch (\Throwable $th) {
+            return redirect()->route($this->routeRouteName)
+                ->with('error', 'Failed to edit category: ' . $th->getMessage());
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(CategoryRequest $request, Category $category): RedirectResponse
+    public function update(CategoryRequest $request, string $id): RedirectResponse
     {
-        $category->update($request->validated());
-
-        return Redirect::route('categories.index')
-            ->with('success', 'Category updated successfully');
+       try {
+            $this->categoryService->updateCategory($id, $request->validated());
+            return redirect()->route($this->routeRouteName)
+                ->with('success', 'Category updated successfully');
+       }catch (ModelNotFoundException $e) {
+            abort(404, 'Category not found');
+        }catch (\Throwable $th) {
+            return redirect()->route('categories.edit', $id)
+                ->with('error', 'Failed to update category: ' . $th->getMessage());
+       }
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(string $id): RedirectResponse
     {
-        Category::find($id)->delete();
-
-        return Redirect::route('categories.index')
-            ->with('success', 'Category deleted successfully');
+        try {
+            $this->categoryService->deleteCategory($id);
+            return redirect()->route($this->routeRouteName)
+                ->with('success', 'Category deleted successfully');
+        }catch (ModelNotFoundException $e) {
+            abort(404, 'Category not found');
+        }catch (\Throwable $th) {
+            return redirect()->route($this->routeRouteName)
+                ->with('error', 'Failed to deleted category: ' . $th->getMessage());
+        }
     }
 }

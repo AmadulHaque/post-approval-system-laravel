@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use App\Enum\PostStatus;
+use App\Media\HasMedia;
+use App\Media\Mediable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Post extends Model
+class Post extends Model implements Mediable
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,HasMedia;
 
     public $fillable = [
         'title',
@@ -19,14 +21,41 @@ class Post extends Model
         'content',
         'status',
         'published_at',
+        'thumbnail'
     ];
-
+    protected $appends = ['status_name','status_color'];
     public function cast()
     {
         return [
             'published_at' => 'datetime',
             'status' => PostStatus::class,
         ];
+    }
+
+    public function setThumbnailAttribute($file)
+    {
+        if ($file) {
+            if ($this->media()->where('collection_name', 'thumbnail')->first()) {
+                $this->deleteMedia($this->media()->where('collection_name', 'thumbnail')->first()->id);
+            }
+            $this->addMedia($file, 'thumbnail', ['tags' => '']);
+        }
+    }
+
+    public function getThumbnailAttribute()
+    {
+        return $this->getFirstUrl('thumbnail');
+    }
+
+
+    public function getStatusNameAttribute()
+    {
+        return PostStatus::find($this->status);
+    }
+
+    public function getStatusColorAttribute()
+    {
+        return PostStatus::color($this->status);
     }
 
     public function user()
