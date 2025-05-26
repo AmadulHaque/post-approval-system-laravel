@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enum\PostStatus;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
@@ -26,7 +27,6 @@ class PostService
             ->orderBy($sortBy, 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
     }
-
 
     public function create(array $data): Post
     {
@@ -60,14 +60,13 @@ class PostService
         $post = $this->findById($id);
         return DB::transaction(function () use ($post, $data) {
             // Update post data
-            $post->update([
-                'title' => $data['title'],
-                'slug' => \Str::slug($data['title']),
-                'content' => $data['content'],
-                'status' => $data['status'],
-                'published_at' => $data['status'] === 'published' ? now() : null,
-                 'thumbnail' => $data['thumbnail'],
-            ]);
+            $post->title = $data['title'];
+            $post->slug = \Str::slug($data['title']);
+            $post->content = $data['content'];
+            $post->status = $data['status'];
+            $post->published_at = $data['status'] === 'published' ? now() : null;
+            $post->thumbnail = $data['thumbnail'] ?? '';
+            $post->save();
 
             // Sync categories
             $post->categories()->sync($data['category_ids']);
@@ -107,5 +106,36 @@ class PostService
     {
         return Tag::all();
     }
+
+
+
+    // ---------------- Frontend Methods ----------------
+    public function getAllPosts()
+    {
+        $page = request()->get('page', 1);
+        $perPage = request()->get('per_page', 10);
+        $sortBy = request()->get('sort_by', 'created_at');
+        $search = request()->get('search', '');
+
+
+        return Post::query()
+            ->where('status', PostStatus::PUBLISHED->value)
+            ->with(['user:id,name','media'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy($sortBy, 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+
+    public function getPostBySlug(string $slug)
+    {
+        return  Post::where('slug', $slug)
+                ->with(['user:id,name','media','categories:id,name','tags:id,name'])
+                ->where('status', PostStatus::PUBLISHED->value)
+                ->firstOrFail();
+    }
+
 
 }

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Cache\PostCache;
 use App\Enum\PostStatus;
 use App\Media\HasMedia;
 use App\Media\Mediable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Post extends Model implements Mediable
 {
@@ -74,5 +76,23 @@ class Post extends Model implements Mediable
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($post) {
+            $post->deleteImage();
+            $post->clearMediaCollection('thumbnail');
+        });
+
+        $clearCache = function () {
+            (new PostCache())->clearAllPostsCache();
+
+        };
+
+        static::saved($clearCache);
+        static::updated($clearCache);
+        static::deleted($clearCache);
+    }
 
 }

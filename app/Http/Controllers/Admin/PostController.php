@@ -68,7 +68,7 @@ class PostController extends Controller
        }catch (ModelNotFoundException $e) {
             abort(404, 'Post not found');
         }catch (\Throwable $th) {
-            return redirect()->route('tags.edit', parameters: $id)
+            return redirect()->route('posts.edit', parameters: $id)
                 ->with('error', 'Failed to update post: ' . $th->getMessage());
        }
     }
