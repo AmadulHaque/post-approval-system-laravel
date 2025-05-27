@@ -18,7 +18,6 @@ class Post extends Model implements Mediable
 
     public $fillable = [
         'title',
-        'slug',
         'user_id',
         'content',
         'status',
@@ -33,6 +32,22 @@ class Post extends Model implements Mediable
             'status' => PostStatus::class,
         ];
     }
+
+    public function setTitleAttribute($value)
+    {
+        $this->attributes['title'] = strtolower($value);
+
+        $slugBase = str_replace(' ', '-', $this->attributes['title']);
+        $slug = $slugBase;
+        $count = 1;
+        while (self::where('slug', $slug)->exists()) {
+            $slug = $slugBase . '-' . $count++;
+        }
+        $this->attributes['slug'] = $slug;
+    }
+
+
+
 
     public function setThumbnailAttribute($file)
     {

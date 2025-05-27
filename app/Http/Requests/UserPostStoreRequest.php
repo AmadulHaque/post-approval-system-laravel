@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class PostRequest extends FormRequest
+class UserPostStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +21,6 @@ class PostRequest extends FormRequest
      */
     public function rules(): array
     {
-        $postId = $this->route('post'); // null if creating
-
         return [
             'title' => [
                 'required',
@@ -36,8 +33,7 @@ class PostRequest extends FormRequest
             'tag_ids.*' => 'exists:tags,id',
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:categories,id',
-            'status' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,avif,png,jpg,gif,svg,webp|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,avif,jpg,gif,svg,webp|max:2048',
         ];
     }
 }

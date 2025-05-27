@@ -37,13 +37,15 @@ class PostService
             // Create post
             $post = Post::create([
                 'title' => $data['title'],
-                'slug' => \Str::slug($data['title']),
                 'content' => $data['content'],
                 'user_id' => $user->id,
                 'status' => $data['status'],
                 'published_at' => $data['status'] === 'published' ? now() : null,
-                'thumbnail' => $data['thumbnail'],
             ]);
+
+            $post->thumbnail = $data['thumbnail'] ?? '';
+
+            $post->save();
 
             // Attach tags
             $post->tags()->attach($data['tag_ids']);
@@ -131,11 +133,35 @@ class PostService
 
     public function getPostBySlug(string $slug)
     {
+        $type = request('type','all') ;//  == 'author' ? true : null;
         return  Post::where('slug', $slug)
                 ->with(['user:id,name','media','categories:id,name','tags:id,name'])
-                ->where('status', PostStatus::PUBLISHED->value)
+                ->when($type, function ($query) use($type) {
+                    if ($type == 'author') {
+                        $query->where('user_id', Auth::user()->id);
+                    }else{
+                        $query->where('status', PostStatus::PUBLISHED->value);
+                    }
+                })
                 ->firstOrFail();
     }
 
+    public function myPosts()
+    {
+        $page = request()->get('page', 1);
+        $perPage = request()->get('per_page', 10);
+        $sortBy = request()->get('sort_by', 'created_at');
+        $search = request()->get('search', '');
+
+
+        return Post::query()
+            ->where('user_id', Auth::user()->id)
+            ->with(['user:id,name','media'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy($sortBy, 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
 
 }

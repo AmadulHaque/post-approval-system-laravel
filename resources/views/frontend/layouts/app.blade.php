@@ -8,6 +8,19 @@
         <title>{{ $title ?? 'LaraBlog' }}</title>
         <link rel="icon" href="favicon.ico">
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+          <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
     </head>
     <body x-data="{ page: 'personal-blog', 'loaded': true, 'modalNewsletter': false, 'modalSearch': false, 'stickyMenu': false, 'navigationOpen': false, 'scrollTop': false }">
@@ -40,7 +53,7 @@
                     </button>
                     <!-- Hamburger Toggle BTN -->
                 </div>
-                <div style="padding: 10px; " class="w-full lg:w-9/12 h-0 lg:h-auto invisible lg:visible lg:flex items-center justify-between" :class="{ 'visible! bg-white shadow-lgrelative h-auto! max-h-[400px] overflow-y-scroll rounded-md mt-4 p-7.5': navigationOpen }">
+                <div style="padding: 10px; " class="w-full lg:w-9/12 h-0 lg:h-auto visible lg:flex items-center justify-between" >
                     <!-- Main Nav Start -->
                     <nav>
                         <ul class="flex lg:items-center flex-col lg:flex-row gap-5 lg:gap-10">
@@ -52,12 +65,12 @@
                         @if (Auth::check())
                             <div class="flex items-center gap-4">
 
-                                <a href="{{ route('post.create') }}"  class="rounded-md text-white font-medium flex py-2.5 px-5.5 bg-dark hover:opacity-90 lg:transition-all lg:ease-linear lg:duration-200">
+                                <a href="{{ route('frontend.posts.create') }}"  class="rounded-md text-white font-medium flex py-2.5 px-5.5 bg-dark hover:opacity-90 lg:transition-all lg:ease-linear lg:duration-200">
                                     <svg style="fill: rgb(255, 255, 255)" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="25" viewBox="0 0 50 50">
                                         <path d="M 25 2 C 12.264481 2 2 12.264481 2 25 C 2 37.735519 12.264481 48 25 48 C 37.735519 48 48 37.735519 48 25 C 48 12.264481 37.735519 2 25 2 z M 25 4 C 36.664481 4 46 13.335519 46 25 C 46 36.664481 36.664481 46 25 46 C 13.335519 46 4 36.664481 4 25 C 4 13.335519 13.335519 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"></path>
                                     </svg> Create Post
                                 </a>
-                                <a href="/" class="text-dark font-medium hover:text-primary transition-all ease-linear duration-200" >My Post</a>
+                                <a href="{{ route('frontend.posts.list') }}" class="text-dark font-medium hover:text-primary transition-all ease-linear duration-200" >My Post</a>
                                 <a href="{{ route('logout') }}" class="text-dark font-medium hover:text-primary transition-all ease-linear duration-200" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf

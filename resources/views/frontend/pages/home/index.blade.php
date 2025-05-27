@@ -65,7 +65,7 @@
 
     async function fetchPosts(page) {
         try {
-            const response = await fetch('{{ route("posts.load-more") }}', {
+            const response = await fetch('{{ route("frontend.posts.load-more") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
