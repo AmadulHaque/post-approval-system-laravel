@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Enum\PostStatus;
+use App\Jobs\SendPostApprovedNotification;
+use App\Jobs\SendPostRejectedNotification;
+use App\Jobs\SendPostForApprovalNotification;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
@@ -20,7 +23,7 @@ class PostService
 
 
         return Post::query()
-            ->with(['user:id,name', 'tags:id,name', 'categories:id,name','media'])
+            ->with(['user:id,name','media'])
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%');
             })
@@ -53,6 +56,11 @@ class PostService
             // Attach categories
             $post->categories()->attach($data['category_ids']);
 
+            if ($data['status'] == PostStatus::DRAFT->value) {
+                SendPostForApprovalNotification::dispatch($post);
+            }
+
+
             return $post;
         });
     }
@@ -61,9 +69,9 @@ class PostService
     {
         $post = $this->findById($id);
         return DB::transaction(function () use ($post, $data) {
+            $oldStatus = $post->status;
             // Update post data
             $post->title = $data['title'];
-            $post->slug = \Str::slug($data['title']);
             $post->content = $data['content'];
             $post->status = $data['status'];
             $post->published_at = $data['status'] === 'published' ? now() : null;
@@ -75,6 +83,17 @@ class PostService
 
             // Sync tags
             $post->tags()->sync($data['tag_ids']);
+
+            // when status as published
+            if ($oldStatus != PostStatus::PUBLISHED->value  && $post->status == PostStatus::PUBLISHED->value) {
+                SendPostApprovedNotification::dispatch($post);
+            }
+
+            // when status as rejected
+            if ($oldStatus != PostStatus::REJECTED->value  && $post->status == PostStatus::REJECTED->value) {
+                SendPostRejectedNotification::dispatch($post);
+            }
+
 
             return $post;
         });

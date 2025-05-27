@@ -8,6 +8,7 @@ enum PostStatus :int
     case  DRAFT = 0;
     case PUBLISHED = 1;
     case ARCHIVED = 2;
+    case REJECTED = 3;
 
 
     public static function all() :array
@@ -16,6 +17,7 @@ enum PostStatus :int
             self::DRAFT->value => 'Draft',
             self::PUBLISHED->value => 'Published',
             self::ARCHIVED->value => 'Archived',
+            self::REJECTED->value => 'Rejected',
         ];
     }
 
@@ -25,6 +27,7 @@ enum PostStatus :int
             self::DRAFT->value => 'Draft',
             self::PUBLISHED->value => 'Published',
             self::ARCHIVED->value => 'Archived',
+            self::REJECTED->value => 'Rejected',
             default => 'Unknown',
         };
     }
@@ -35,6 +38,7 @@ enum PostStatus :int
             self::DRAFT->value => 'red',
             self::PUBLISHED->value => 'green',
             self::ARCHIVED->value => 'blue',
+            self::REJECTED->value => 'red',
             default => 'gray',
         };
     }

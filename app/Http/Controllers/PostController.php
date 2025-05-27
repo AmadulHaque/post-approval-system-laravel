@@ -64,7 +64,8 @@ class PostController extends Controller
             $data = $request->validated();
             $data['status'] = PostStatus::DRAFT->value;
             $post = $this->postService->create($data);
-            return redirect()->route('frontend.posts.index');
+            return redirect()->route('frontend.posts.list')
+                ->with('success', 'Post created successfully and sent for approval.');
         } catch (\Throwable $th) {
             return $th->getMessage();
             return redirect()->route('frontend.posts.create')

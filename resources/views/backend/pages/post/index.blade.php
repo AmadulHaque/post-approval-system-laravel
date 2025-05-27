@@ -31,9 +31,9 @@
 									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Thumbnail</th>
 									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Title</th>
 									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Status</th>
+									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Created At</th>
+									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Published At</th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Actions</th>
-									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Category</th>
-									    <th scope="col" class="py-3 pl-4 px-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Tags</th>
                                     </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 bg-white">
@@ -49,6 +49,8 @@
                                             </td>
 										    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->title }}</td>
                                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->status_name }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->created_at->diffForHumans()  }}</td>
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->published_at?->diffForHumans()  }}</td>
                                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                                                 <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
                                                     <a href="{{ route('posts.edit', $post->id) }}" class="text-indigo-600 font-bold hover:text-indigo-900  mr-2">{{ __('Edit') }}</a>
@@ -57,9 +59,6 @@
                                                     <a href="{{ route('posts.destroy', $post->id) }}" class="text-red-600 font-bold hover:text-red-900" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;">{{ __('Delete') }}</a>
                                                 </form>
                                             </td>
-										    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->categories->pluck('name')->implode(', ') }}</td>
-										    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $post->tags->pluck('name')->implode(', ') }}</td>
-
                                         </tr>
                                     @endforeach
                                     </tbody>
