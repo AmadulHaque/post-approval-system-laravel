@@ -11,7 +11,10 @@ class NewPostForApproval extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Post $post) {}
+    public $post;
+    public function __construct($id) {
+        $this->post = Post::findOrFail($id);
+    }
 
     public function via($notifiable)
     {

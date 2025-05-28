@@ -57,7 +57,7 @@ class PostService
             $post->categories()->attach($data['category_ids']);
 
             if ($data['status'] == PostStatus::DRAFT->value) {
-                SendPostForApprovalNotification::dispatch($post);
+                SendPostForApprovalNotification::dispatch($post->id);
             }
 
 
@@ -86,12 +86,12 @@ class PostService
 
             // when status as published
             if ($oldStatus != PostStatus::PUBLISHED->value  && $post->status == PostStatus::PUBLISHED->value) {
-                SendPostApprovedNotification::dispatch($post);
+                SendPostApprovedNotification::dispatch($post->id);
             }
 
             // when status as rejected
             if ($oldStatus != PostStatus::REJECTED->value  && $post->status == PostStatus::REJECTED->value) {
-                SendPostRejectedNotification::dispatch($post);
+                SendPostRejectedNotification::dispatch($post->id);
             }
 
 

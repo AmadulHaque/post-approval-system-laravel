@@ -13,10 +13,13 @@ class SendPostApprovedNotification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Post $post) {}
+    public $post;
+    public function __construct($id) {
+        $this->post = Post::findOrFail($id);
+    }
 
     public function handle()
     {
-        $this->post->user->notify(new PostApproved($this->post));
+        $this->post->user->notify(new PostApproved($this->post->id));
     }
 }

@@ -15,11 +15,15 @@ class SendPostForApprovalNotification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Post $post) {}
+    public $post;
+    public function __construct($id) {
+        $this->post = Post::findOrFail($id);
+    }
+
 
     public function handle()
     {
         $admin = User::where('role', 1)->first();
-        $admin->notify(new NewPostForApproval($this->post));
+        $admin->notify(new NewPostForApproval($this->post->id));
     }
 }
